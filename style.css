@@ -1,0 +1,832 @@
+/* ==========================================================================
+   DESIGN TOKENS — TEMA RETRO ARCADE
+   ========================================================================== */
+:root {
+    --bg-void: #0a0a18;
+    --bg-panel: #14152b;
+    --bg-panel-lt: #1d1f3d;
+    --neon-pink: #ff3cac;
+    --neon-cyan: #2ee6d6;
+    --neon-yellow: #f9f871;
+    --neon-green: #39ff88;
+    --neon-purple: #9d4dff;
+    --neon-blue: #5aa9ff;
+    --neon-orange: #ff9d4d;
+    --paper: #f2ecd8;
+    --ink: #201f2e;
+    --pixel-black: #000000;
+
+    --font-pixel: "Press Start 2P", "Courier New", monospace;
+    --font-retro: "VT323", "Courier New", monospace;
+
+    --max-w: 480px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+    background: var(--bg-void);
+    color: var(--paper);
+    font-family: var(--font-retro);
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+    /* Menghilangkan highlight biru bawaan HP saat ditekan */
+}
+
+body {
+    display: flex;
+    justify-content: center;
+}
+
+#app {
+    position: relative;
+    width: 100%;
+    max-width: var(--max-w);
+    min-height: 100vh;
+    margin: 0 auto;
+    z-index: 2;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   BACKGROUND RETRO (GRID NEON + PIXEL PARTICLES)
+   ========================================================================== */
+.ocean-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+        radial-gradient(ellipse at 50% -10%, #23234a 0%, #14152b 45%, #08081a 100%);
+    overflow: hidden;
+}
+
+.ocean-bg::before {
+    /* grid horizon synthwave */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(46, 230, 214, .12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(46, 230, 214, .12) 1px, transparent 1px);
+    background-size: 34px 34px;
+    mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, .9) 60%, rgba(0, 0, 0, .2) 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, .9) 60%, rgba(0, 0, 0, .2) 100%);
+}
+
+.waves {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 220%;
+    transform: translateX(-50%);
+    height: 140px;
+    filter: drop-shadow(0 0 10px rgba(157, 77, 255, .5));
+}
+
+.waves path {
+    fill: var(--neon-purple);
+    opacity: .25;
+}
+
+.waves-front path {
+    fill: var(--neon-pink);
+    opacity: .22;
+}
+
+.waves-back {
+    animation: drift 14s linear infinite;
+}
+
+.waves-front {
+    animation: drift 9s linear infinite reverse;
+    bottom: -6px;
+}
+
+@keyframes drift {
+    0% {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    50% {
+        transform: translateX(-54%) translateY(-6px);
+    }
+
+    100% {
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.bubbles {
+    position: absolute;
+    inset: 0;
+}
+
+/* bubble jadi partikel piksel yang naik, warna neon selang-seling */
+.bubble {
+    position: absolute;
+    bottom: -40px;
+    border-radius: 0;
+    background: var(--neon-cyan);
+    box-shadow: 0 0 6px currentColor, 0 0 2px #fff;
+    color: var(--neon-cyan);
+    animation: rise linear infinite;
+}
+
+.bubble:nth-child(3n) {
+    color: var(--neon-pink);
+    background: var(--neon-pink);
+}
+
+.bubble:nth-child(4n) {
+    color: var(--neon-yellow);
+    background: var(--neon-yellow);
+}
+
+.bubble:nth-child(5n) {
+    color: var(--neon-green);
+    background: var(--neon-green);
+}
+
+@keyframes rise {
+    0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: .8;
+    }
+
+    100% {
+        transform: translateY(-115vh) translateX(var(--drift, 10px));
+        opacity: 0;
+    }
+}
+
+/* efek scanline CRT di atas semua konten */
+.crt-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 6;
+    pointer-events: none;
+    background: repeating-linear-gradient(to bottom,
+            rgba(255, 255, 255, .045) 0px,
+            rgba(255, 255, 255, .045) 1px,
+            transparent 2px,
+            transparent 4px);
+    mix-blend-mode: overlay;
+    animation: crt-flicker 6s linear infinite;
+}
+
+.crt-overlay::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, .55) 100%);
+}
+
+@keyframes crt-flicker {
+
+    0%,
+    96%,
+    100% {
+        opacity: .85;
+    }
+
+    97% {
+        opacity: .55;
+    }
+
+    98% {
+        opacity: .95;
+    }
+}
+
+/* ==========================================================================
+   SHARED STAGE SCAFFOLDING
+   ========================================================================== */
+.stage {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    padding: 32px 22px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    animation: fade-in .6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.stage[hidden] {
+    display: none;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.stage-inner {
+    width: 100%;
+    max-width: 400px;
+    margin: auto 0;
+    padding-top: 48px;
+}
+
+.stamp-label {
+    font-family: var(--font-pixel);
+    font-size: 9.5px;
+    letter-spacing: .12em;
+    color: var(--neon-yellow);
+    text-shadow: 0 0 6px rgba(249, 248, 113, .6);
+    margin: 0 0 12px;
+}
+
+.display-title,
+.pixel-title {
+    font-family: var(--font-pixel);
+    font-style: normal;
+    font-weight: 400;
+    font-size: clamp(16px, 5.4vw, 20px);
+    line-height: 1.5;
+    color: var(--neon-cyan);
+    text-shadow: 0 0 8px rgba(46, 230, 214, .6), 3px 3px 0 rgba(0, 0, 0, .5);
+    margin: 0 0 14px;
+}
+
+.pixel-title {
+    font-size: clamp(17px, 6vw, 22px);
+    color: var(--neon-pink);
+    text-shadow: 0 0 10px rgba(255, 60, 172, .6), 3px 3px 0 rgba(0, 0, 0, .5);
+    margin: 0 0 20px;
+}
+
+.fine-print {
+    font-family: var(--font-retro);
+    font-size: 16px;
+    letter-spacing: .02em;
+    color: var(--neon-green);
+    line-height: 1.5;
+    margin: 0 0 22px;
+}
+
+.blink {
+    animation: pixel-blink 1.1s steps(1) infinite;
+}
+
+@keyframes pixel-blink {
+
+    0%,
+    49% {
+        opacity: 1;
+    }
+
+    50%,
+    100% {
+        opacity: .25;
+    }
+}
+
+/* Tombol Back — gaya tombol arcade piksel */
+.btn-back {
+    align-self: flex-start;
+    background: var(--bg-panel);
+    border: 3px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    font-family: var(--font-pixel);
+    font-size: 9px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    border-radius: 0;
+    margin-bottom: 20px;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, .6);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.btn-back:active {
+    transform: translate(3px, 3px);
+    box-shadow: 1px 1px 0 rgba(0, 0, 0, .6);
+    background: var(--bg-panel-lt);
+}
+
+/* ==========================================================================
+   STAGE 1 — LOADING (RETRO BOOT SCREEN)
+   ========================================================================== */
+.stage-loading {
+    justify-content: center;
+}
+
+.retro-loader {
+    width: min(84vw, 320px);
+    padding: 28px 22px;
+    background: var(--bg-panel);
+    border: 4px solid var(--neon-pink);
+    box-shadow: 6px 6px 0 rgba(0, 0, 0, .6), 0 0 24px rgba(255, 60, 172, .35);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: loader-hum 3s ease-in-out infinite;
+}
+
+@keyframes loader-hum {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+.retro-loader::before {
+    content: "";
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    border: 2px dashed rgba(46, 230, 214, .35);
+    pointer-events: none;
+}
+
+.loading-track {
+    width: 100%;
+    height: 18px;
+    padding: 3px;
+    background: var(--pixel-black);
+    border: 2px solid var(--neon-cyan);
+    margin-bottom: 10px;
+    display: flex;
+    gap: 3px;
+}
+
+.loading-fill {
+    height: 100%;
+    width: 0%;
+    background: repeating-linear-gradient(90deg,
+            var(--neon-yellow) 0px,
+            var(--neon-yellow) 10px,
+            var(--neon-orange) 10px,
+            var(--neon-orange) 20px);
+    transition: width .25s steps(10);
+}
+
+.loading-percent {
+    font-family: var(--font-pixel);
+    font-size: 12px;
+    color: var(--neon-yellow);
+    text-shadow: 0 0 6px rgba(249, 248, 113, .6);
+    margin: 0 0 14px;
+}
+
+/* ==========================================================================
+   STAGE 2 — MINI GAME: SUSUN BARIS (TETRIS)
+   ========================================================================== */
+.tetris-status {
+    min-height: 20px;
+    font-family: var(--font-pixel);
+    font-size: 10px;
+    color: var(--neon-yellow);
+    text-shadow: 0 0 6px rgba(249, 248, 113, .5);
+    margin: -6px 0 14px;
+}
+
+.tetris-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    background: linear-gradient(160deg, var(--bg-panel), var(--bg-panel-lt) 80%);
+    border: 3px solid var(--neon-purple);
+    box-shadow: 5px 5px 0 rgba(0, 0, 0, .6), 0 0 20px rgba(157, 77, 255, .3);
+    margin-bottom: 18px;
+}
+
+.tetris-board {
+    --cell: 20px;
+    display: grid;
+    grid-template-columns: repeat(var(--cols), var(--cell));
+    grid-template-rows: repeat(var(--rows), var(--cell));
+    gap: 1px;
+    background: #000;
+    padding: 4px;
+    border: 2px solid #000;
+}
+
+.tetris-cell {
+    width: var(--cell);
+    height: var(--cell);
+    background: rgba(255, 255, 255, .04);
+    outline: 1px solid rgba(255, 255, 255, .03);
+}
+
+.tetris-cell.filled {
+    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .35), inset 2px 2px 0 rgba(255, 255, 255, .25);
+}
+
+.tetris-controls {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    width: 100%;
+}
+
+.tetris-btn {
+    aspect-ratio: 1;
+    border-radius: 0;
+    border: 3px solid var(--neon-cyan);
+    background: var(--bg-panel);
+    color: var(--neon-cyan);
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, .6);
+    transition: transform .1s ease, box-shadow .1s ease;
+    touch-action: manipulation;
+}
+
+.tetris-btn:active {
+    transform: translate(3px, 3px);
+    box-shadow: 1px 1px 0 rgba(0, 0, 0, .6);
+    background: var(--bg-panel-lt);
+}
+
+.tetris-btn-drop {
+    border-color: var(--neon-pink);
+    color: var(--neon-pink);
+}
+
+.confetti-piece {
+    position: fixed;
+    top: -10px;
+    width: 8px;
+    height: 14px;
+    z-index: 50;
+    pointer-events: none;
+    animation: confetti-fall linear forwards;
+}
+
+@keyframes confetti-fall {
+    to {
+        transform: translateY(110vh) rotate(540deg);
+        opacity: .9;
+    }
+}
+
+/* ==========================================================================
+   STAGE 3 — MENU CARDS
+   ========================================================================== */
+.menu-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
+.menu-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+    border-radius: 0;
+    border: 3px solid var(--neon-cyan);
+    background: var(--bg-panel);
+    color: var(--paper);
+    text-align: left;
+    box-shadow: 5px 5px 0 rgba(0, 0, 0, .6);
+    transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
+    touch-action: manipulation;
+}
+
+.menu-card-icon {
+    font-size: 26px;
+    transition: transform 0.2s ease;
+}
+
+.menu-card-label {
+    font-family: var(--font-pixel);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--neon-yellow);
+}
+
+/* Sentuhan Responsif Seluler */
+.menu-card:active {
+    transform: translate(3px, 3px);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, .6);
+    border-color: var(--neon-pink);
+    background: var(--bg-panel-lt);
+}
+
+.menu-card:active .menu-card-icon {
+    transform: scale(1.15) rotate(5deg);
+}
+
+/* ==========================================================================
+   STAGE 4 — MEMORIES GALLERY (KARTU FOTO PIKSEL)
+   ========================================================================== */
+.gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+    padding-top: 6px;
+    width: 100%;
+}
+
+.polaroid {
+    background: var(--paper);
+    padding: 10px 10px 20px;
+    border-radius: 0;
+    border: 3px solid var(--pixel-black);
+    box-shadow: 6px 6px 0 rgba(157, 77, 255, .5);
+    position: relative;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.polaroid:active {
+    transform: translate(3px, 3px);
+    box-shadow: 3px 3px 0 rgba(157, 77, 255, .5);
+    z-index: 5;
+}
+
+.polaroid::before {
+    content: "SAVE";
+    position: absolute;
+    top: -12px;
+    left: 12px;
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--pixel-black);
+    background: var(--neon-yellow);
+    padding: 3px 6px;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, .4);
+}
+
+.polaroid img {
+    width: 100%;
+    display: block;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    background: var(--bg-panel);
+    border-radius: 0;
+    border: 2px solid var(--pixel-black);
+    image-rendering: pixelated;
+}
+
+.polaroid figcaption {
+    font-family: var(--font-retro);
+    font-size: 19px;
+    color: var(--ink);
+    text-align: center;
+    margin-top: 12px;
+}
+
+/* ==========================================================================
+   STAGE 5 — THE LETTER (KOTAK DIALOG RETRO)
+   ========================================================================== */
+.letter-paper {
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 0;
+    border: 3px solid var(--pixel-black);
+    padding: 24px 20px;
+    box-shadow: 6px 6px 0 rgba(46, 230, 214, .4);
+    text-align: left;
+    margin-bottom: 26px;
+    width: 100%;
+    position: relative;
+}
+
+.letter-paper::before {
+    content: "MESSAGE";
+    position: absolute;
+    top: -13px;
+    left: 12px;
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--pixel-black);
+    background: var(--neon-cyan);
+    padding: 3px 6px;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, .4);
+}
+
+.letter-text {
+    font-family: var(--font-retro);
+    font-size: 20px;
+    line-height: 1.5;
+    white-space: pre-line;
+    margin: 0 0 14px;
+}
+
+.letter-signoff {
+    font-family: var(--font-retro);
+    font-size: 20px;
+    text-align: right;
+    margin: 0;
+}
+
+.gallery-gift .polaroid figcaption:empty {
+    display: none;
+}
+
+/* ==========================================================================
+   FLOATING MUSIC POP-UP WIDGET (Mobile Floating Button)
+   ========================================================================== */
+.music-widget {
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    /* Aman untuk HP berlayar poni/notch */
+    right: 20px;
+    display: flex;
+    align-items: center;
+    background: var(--bg-panel);
+    border: 2px solid var(--neon-cyan);
+    border-radius: 0;
+    padding: 5px;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, .6), 0 0 14px rgba(46, 230, 214, .3);
+    z-index: 9999;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    max-width: 58px;
+    touch-action: manipulation;
+}
+
+/* Efek Tekan Widget di HP */
+.music-widget:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, .6);
+}
+
+.music-widget.expanded {
+    max-width: 260px;
+    padding-right: 16px;
+    border-color: var(--neon-pink);
+}
+
+/* Vinyl Disc & Glow Effect */
+.vinyl-disc {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    background: radial-gradient(circle, var(--ink) 60%, var(--neon-purple) 100%);
+    border-radius: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(157, 77, 255, .5);
+    border: 2px solid var(--neon-cyan);
+    overflow: hidden;
+}
+
+.vinyl-image {
+    width: 78%;
+    height: 78%;
+    border-radius: 0;
+    object-fit: cover;
+    border: 1.5px solid var(--paper);
+    box-sizing: border-box;
+    image-rendering: pixelated;
+}
+
+/* Animasi Denyut Lampu Musik saat Berputar */
+.music-widget.playing {
+    box-shadow: 0 0 18px rgba(46, 230, 214, .5), 4px 4px 0 rgba(0, 0, 0, .6);
+}
+
+.music-widget.playing .vinyl-disc {
+    animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(0deg);
+    }
+}
+
+/* Informasi Musik */
+.music-info {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.music-widget.expanded .music-info {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.music-title {
+    color: var(--neon-yellow);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-pixel);
+}
+
+.music-artist {
+    color: var(--neon-cyan);
+    font-size: 10px;
+    font-family: var(--font-retro);
+    margin-top: 4px;
+}
+
+/* ==========================================================================
+   SCROLL REVEAL — elemen muncul pelan saat di-scroll ke layar (khusus HP)
+   ========================================================================== */
+.reveal-item {
+    opacity: 0;
+    transform: translateY(36px);
+    transition: opacity .5s steps(6), transform .5s steps(6);
+}
+
+.reveal-item.in-view {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* varian: masuk dari kiri — dipakai selang-seling di foto galeri */
+.reveal-item.reveal-left {
+    transform: translateY(22px) translateX(-32px);
+}
+
+.reveal-item.reveal-left.in-view {
+    transform: translateY(0) translateX(0);
+}
+
+/* varian: masuk dari kanan — pasangan selang-seling reveal-left */
+.reveal-item.reveal-right {
+    transform: translateY(22px) translateX(32px);
+}
+
+.reveal-item.reveal-right.in-view {
+    transform: translateY(0) translateX(0);
+}
+
+/* varian: muncul membesar — dipakai di surat & kartu menu */
+.reveal-item.reveal-scale {
+    transform: translateY(26px) scale(0.92);
+}
+
+.reveal-item.reveal-scale.in-view {
+    transform: translateY(0) scale(1);
+}
+
+/* jaga efek tekan di HP tetap jalan meski sudah in-view */
+.menu-card.reveal-item.in-view:active {
+    transform: translate(3px, 3px);
+}
+
+.polaroid.reveal-item.in-view:active {
+    transform: translate(3px, 3px);
+}
+
+/* urutan muncul kartu menu biar tidak barengan */
+.menu-cards .menu-card.reveal-item:nth-child(1) {
+    transition-delay: .05s;
+}
+
+.menu-cards .menu-card.reveal-item:nth-child(2) {
+    transition-delay: .2s;
+}
+
+/* ==========================================================================
+   ACCESSIBILITY / REDUCED MOTION
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+    }
+}

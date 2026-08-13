@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Untukmu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Background laut permanen -->
+    <div class="ocean-bg" aria-hidden="true">
+        <div class="bubbles" id="bubbles"></div>
+        <svg class="waves waves-back" viewBox="0 0 1440 220" preserveAspectRatio="none">
+            <path d="M0,80 C240,140 480,20 720,60 C960,100 1200,20 1440,80 L1440,220 L0,220 Z"></path>
+        </svg>
+        <svg class="waves waves-front" viewBox="0 0 1440 220" preserveAspectRatio="none">
+            <path d="M0,100 C240,40 480,160 720,100 C960,40 1200,140 1440,90 L1440,220 L0,220 Z"></path>
+        </svg>
+    </div>
+
+    <!-- Efek CRT scanline retro -->
+    <div class="crt-overlay" aria-hidden="true"></div>
+
+    <main id="app">
+
+        <!-- URUTAN 1: LOADING -->
+        <section class="stage stage-loading" id="stage-loading" data-stage="loading">
+            <div class="retro-loader">
+                <p class="stamp-label" id="loading-eyebrow"></p>
+                <h1 class="pixel-title" id="loading-title"></h1>
+                <div class="loading-track">
+                    <div class="loading-fill" id="loading-fill"></div>
+                </div>
+                <p class="loading-percent" id="loading-percent">0%</p>
+                <p class="fine-print blink" id="loading-subtitle"></p>
+            </div>
+        </section>
+
+        <!-- URUTAN 2: MINI GAME -->
+        <section class="stage stage-game" id="stage-game" data-stage="game" hidden>
+            <div class="stage-inner">
+                <p class="stamp-label">LEVEL 1</p>
+                <h2 class="pixel-title" id="game-title"></h2>
+                <p class="fine-print" id="game-instruction"></p>
+                <p class="tetris-status" id="tetris-status"></p>
+                <div class="tetris-wrap">
+                    <div class="tetris-board" id="tetris-board"></div>
+                </div>
+                <div class="tetris-controls">
+                    <button class="tetris-btn" id="tetris-left" type="button" aria-label="geser kiri">&#8592;</button>
+                    <button class="tetris-btn" id="tetris-rotate" type="button" aria-label="putar balok">&#8635;</button>
+                    <button class="tetris-btn" id="tetris-right" type="button" aria-label="geser kanan">&#8594;</button>
+                    <button class="tetris-btn tetris-btn-drop" id="tetris-drop" type="button" aria-label="turun cepat">&#8595;</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- URUTAN 3: MENU UTAMA -->
+        <section class="stage stage-menu" id="stage-menu" data-stage="menu" hidden>
+            <div class="stage-inner">
+                <p class="stamp-label">LEVEL CLEAR!</p>
+                <h2 class="display-title" id="menu-title"></h2>
+                <p class="fine-print" id="menu-subtitle"></p>
+                <div class="menu-cards">
+                    <button class="menu-card reveal-item reveal-scale" id="btn-go-memories" type="button">
+                        <span class="menu-card-icon" aria-hidden="true">&#128190;</span>
+                        <span class="menu-card-label" id="menu-label-memories"></span>
+                    </button>
+                    <button class="menu-card reveal-item reveal-scale" id="btn-go-gift" type="button">
+                        <span class="menu-card-icon" aria-hidden="true">&#127942;</span>
+                        <span class="menu-card-label" id="menu-label-gift"></span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- URUTAN 4: KENANGAN (GALERI FOTO) -->
+        <section class="stage stage-memories" id="stage-memories" data-stage="memories" hidden>
+            <div class="stage-inner">
+                <button class="btn-back" id="back-from-memories" type="button">&larr; kembali</button>
+                <p class="stamp-label">SAVE FILE</p>
+                <h2 class="display-title" id="memories-title"></h2>
+                <div class="gallery" id="gallery"></div>
+            </div>
+        </section>
+
+        <!-- URUTAN 5: HADIAH (SURAT & FOTO) -->
+        <section class="stage stage-gift" id="stage-gift" data-stage="gift" hidden>
+            <div class="stage-inner">
+                <button class="btn-back" id="back-from-gift" type="button">&larr; kembali</button>
+                <p class="stamp-label">BONUS STAGE</p>
+                <h2 class="display-title" id="gift-title"></h2>
+                <div class="letter-paper reveal-item reveal-scale" id="letter-paper">
+                    <p class="letter-text" id="letter-text"></p>
+                    <p class="letter-signoff" id="letter-signoff"></p>
+                </div>
+                <div class="gallery gallery-gift" id="gift-gallery"></div>
+            </div>
+        </section>
+        <!-- Audio Player (Sembunyi) -->
+        <!-- Audio Player (Tetap sama) -->
+        <audio id="bg-music" src="audio/musikBack.mp3" loop></audio>
+
+        <!-- Pop-up Music Widget (Update) -->
+        <div id="music-widget" class="music-widget expanded">
+            <!-- Piringan Hitam -->
+            <div class="vinyl-disc" id="music-toggle">
+                <!-- BARU: Gambar Album/Artis di Tengah -->
+                <img src="img/IconMusik.png" alt="Album Art" class="vinyl-image">
+            </div>
+
+            <!-- Info Lagu (Tetap sama) -->
+            <div class="music-info">
+                <span class="music-title">Aku Milikmu</span>
+                <span class="music-artist">Dewa 19</span>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
